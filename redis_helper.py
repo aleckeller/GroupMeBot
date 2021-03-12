@@ -21,5 +21,20 @@ def get_keys():
     return redis_object.keys()
 
 def set_key_value(key, value):
-    result = redis_object.set(key, value)
-    return result
+    return redis_object.set(key, value)
+
+def get_list(key):
+    redis_list = []
+    for i in range(0, redis_object.llen(key)):
+        redis_list.append(redis_object.lindex(key, i))
+    return redis_list
+
+def append_to_list(key, value):
+    return redis_object.lpush(key, value)
+
+def delete_key(key):
+    redis_object.delete(key)
+
+def delete_all_keys():
+    for key in redis_object.keys():
+        redis_object.delete(key)

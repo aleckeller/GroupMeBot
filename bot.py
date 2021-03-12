@@ -8,9 +8,13 @@ import responses
 bot_response_functions = getmembers(responses, isfunction)
 sender = None
 message = None
+sender_id = None
 
 def get_sender_name():
     return sender
+
+def get_sender_id():
+    return sender_id
 
 def get_message():
     return message
@@ -38,8 +42,9 @@ def determine_response(json_body):
     response = {}
     status_code = 200
     bot_name = get_bot_name()
-    global sender
+    global sender, sender_id
     sender = json_body.get("name")
+    sender_id = json_body.get("sender_id")
     if bot_name:
         global message
         message = json_body.get("text")
