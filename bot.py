@@ -7,9 +7,13 @@ import responses
 
 bot_response_functions = getmembers(responses, isfunction)
 sender = None
+message = None
 
 def get_sender_name():
     return sender
+
+def get_message():
+    return message
 
 def get_bot_name():
     bot_name = os.environ.get("BOT_NAME")
@@ -37,8 +41,10 @@ def determine_response(json_body):
     global sender
     sender = json_body.get("name")
     if bot_name:
+        global message
         message = json_body.get("text")
-        if message:
+        sender_type = json_body.get("sender_type")
+        if message and sender_type and sender_type == "user":
             message = message.lower()
             if is_bot_mentioned(bot_name, message):
                 print(bot_name + " was mentioned. Determining response..")
@@ -52,7 +58,7 @@ def determine_response(json_body):
                             result = getattr(responses, function_name)()
                             response["message"] = result
                     if not is_function_name:
-                        response["message"] = result
+                        response["message"] = value
     else:
         response = {
             "error": "BOT_NAME environment variable not defined"

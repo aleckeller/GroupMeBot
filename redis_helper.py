@@ -19,3 +19,7 @@ def get_value(key):
 
 def get_keys():
     return redis_object.keys()
+
+def set_key_value(key, value):
+    result = redis_object.set(key, value)
+    return result
