@@ -4,6 +4,8 @@ import os
 import bot
 import redis_helper
 import initial_data
+import CONSTANTS
+import groupme_helper
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -22,59 +24,68 @@ def learn_response():
     message = bot.get_message()
     sender_learn_amount_key = sender_id + "_learn_amount"
     sender_learn_phrases_key = sender_id + "_learn_phrases"
-    if message:
-        parsed_data_between_parentheses = re.findall("\((.*?)\)", message)
-        if len(parsed_data_between_parentheses) == 2:
-            phrase = parsed_data_between_parentheses[0]
-            bot_response = parsed_data_between_parentheses[1]
-            learn_limit = int(os.environ.get("LEARN_LIMIT")) or 2
-            sender_learn_amount = redis_helper.get_value(sender_learn_amount_key)
-            sender_learned_phrases = redis_helper.get_list(sender_learn_phrases_key)
-            if sender_learn_amount:
-                sender_learn_amount = int(sender_learn_amount)
-            else:
-                sender_learn_amount = 0
-            if sender_learn_amount < learn_limit:
-                if not redis_helper.get_value(phrase):
-                    success = redis_helper.set_key_value(phrase, bot_response)
-                    if success:
-                        redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
-                        redis_helper.append_to_list(sender_learn_phrases_key, phrase)
-                        response = (
-                            bot_name + " successfully learned phrase "
-                            "(" + phrase + ") with response (" + bot_response + ")"
-                        )
+    restricted_learn_users = redis_helper.get_list("restricted_learn_users")
+    if sender_id not in restricted_learn_users:
+        if message:
+            parsed_data_between_parentheses = re.findall("\((.*?)\)", message)
+            if len(parsed_data_between_parentheses) == 2:
+                phrase = parsed_data_between_parentheses[0]
+                bot_response = parsed_data_between_parentheses[1]
+                if phrase not in CONSTANTS.RESTRICTED_LEARN_PHRASES:
+                    learn_limit = int(os.environ.get("LEARN_LIMIT")) or 2
+                    sender_learn_amount = redis_helper.get_value(sender_learn_amount_key)
+                    sender_learned_phrases = redis_helper.get_list(sender_learn_phrases_key)
+                    if sender_learn_amount:
+                        sender_learn_amount = int(sender_learn_amount)
+                    else:
+                        sender_learn_amount = 0
+                    if sender_learn_amount < learn_limit:
+                        if not redis_helper.get_value(phrase):
+                            success = redis_helper.set_key_value(phrase, bot_response)
+                            if success:
+                                redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
+                                redis_helper.append_to_list(sender_learn_phrases_key, phrase)
+                                response = (
+                                    bot_name + " successfully learned phrase "
+                                    "(" + phrase + ") with response (" + bot_response + ")"
+                                )
+                            else:
+                                response = (
+                                    "There was an error learning phrase "
+                                    "(" + phrase + ") with response (" + bot_response + ") :/"
+                                )
+                        else:
+                            sender_learned_phrases_string = ""
+                            if sender_learned_phrases:
+                                for sender_learned_phrase in sender_learned_phrases:
+                                    sender_learned_phrases_string = sender_learned_phrases_string + "(" + sender_learned_phrase + ") "
+                            response = (
+                                bot_name + " already knows the phrase (" + phrase + "). "
+                                "If you own this phrase, you can reset the learned phrases "
+                                "you have set. Here are the learned phrases you have set -> " +
+                                sender_learned_phrases_string
+                            )
                     else:
                         response = (
-                            "There was an error learning phrase "
-                            "(" + phrase + ") with response (" + bot_response + ") :/"
+                            sender + ", you have reached your limit of " + str(learn_limit) + 
+                            " learned phrases. Please send the following message if you wish "
+                            "to reset your learned phrases -> \n" +
+                            bot_name + " reset-phrases"
                         )
                 else:
-                    sender_learned_phrases_string = ""
-                    if sender_learned_phrases:
-                        for sender_learned_phrase in sender_learned_phrases:
-                            sender_learned_phrases_string = sender_learned_phrases_string + "(" + sender_learned_phrase + ") "
-                    response = (
-                        bot_name + " already knows the phrase (" + phrase + "). "
-                        "If you own this phrase, you can reset the learned phrases "
-                        "you have set. Here are the learned phrases you have set -> " +
-                        sender_learned_phrases_string
-                    )
+                    response = "(" + phrase + ")" + " is a restricted phrase and " + bot_name + " cannot learn it"
+
             else:
                 response = (
-                    sender + ", you have reached your limit of " + str(learn_limit) + 
-                    " learned phrases. Please send the following message if you wish "
-                    "to reset your learned phrases -> \n" +
-                    bot_name + " reset-phrases"
+                    "Learn message has incorrect structure. "
+                    "Please use the following format -> \n" +
+                    bot_name + " learn (phrase) (response)"
                 )
-
-        else:
-            response = (
-                "Learn message has incorrect structure. "
-                "Please use the following format -> \n" +
-                bot_name + " learn (phrase) (response)"
-                ""
-            )
+    else:
+        response = (
+            sender + ", you are a restricted user and cannot teach " + bot_name + " any new phrases. "
+            "Contact an admin to become unrestricted."
+        )
 
     return response
 
@@ -104,4 +115,40 @@ def list_commands():
                 response = response + "Phrase: " +  phrase + "\n" + description + "\n" + "-------------" + "\n"
             else:
                 response = response + "Phrase: " + phrase + " (custom phrase) " + "\n" + "-------------" + "\n"
+    return response
+
+def restrict_learn_user():
+    response = None
+    message = bot.get_message()
+    bot_name = bot.get_bot_name()
+    sender = bot.get_sender_name()
+    group_id = bot.get_group_id()
+    if message:
+        message_split = message.split(" ")
+        if len(message_split) == 3:
+            action = message_split[1]
+            restricted_user_nickname = message_split[2]
+            sender_id = bot.get_sender_id()
+            admin_user_ids = os.environ.get("ADMIN_USER_IDS")
+            admin_user_ids = admin_user_ids.split(",")
+            if sender_id in admin_user_ids:
+                restricted_user_id = groupme_helper.get_user_id_from_group(group_id, restricted_user_nickname)
+                if restricted_user_id:
+                    if action == "restrict-user":
+                        redis_helper.append_to_list("restricted_learn_users", restricted_user_id)
+                        response = "Restricted the following user: " + restricted_user_nickname
+                    elif action == "undo-restrict":
+                        redis_helper.remove_from_list("restricted_learn_users", restricted_user_id)
+                        response = "Unrestricted the following user: " + restricted_user_nickname
+                    else:
+                        response = "Unknown action"
+                else:
+                    response = restricted_user_nickname + " is not a user in this group"
+            else:
+                response = sender + " is not an admin and cannot restrict users"
+        else:
+            response = (
+                "Restrict/undo users has incorrect structure "
+            )
+
     return response

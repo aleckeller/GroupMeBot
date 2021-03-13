@@ -3,16 +3,19 @@ import os
 import initial_data
 import redis
 
-#redis_url = os.environ.get('REDISTOGO_URL', 'redis://localhost:6379')
-redis_url = "redis://redistogo:978270a2f8107277a484e05008366235@crestfish.redistogo.com:9240/"
+redis_url = os.environ.get('REDISTOGO_URL', 'redis://localhost:6379')
+#redis_url = "redis://redistogo:978270a2f8107277a484e05008366235@crestfish.redistogo.com:9240/"
 redis_object = redis.from_url(redis_url, decode_responses=True)
 
 def initialize_data():
-    data = initial_data.data
-    for key, value in data.items():
+    commands = initial_data.commands
+    for key, value in commands.items():
         success = redis_object.set(key, value)
         if not success:
             print("Was not able to set " + key)
+    restricted_learn_users = initial_data.restricted_learn_users
+    for user in restricted_learn_users:
+        append_to_list("restricted_learn_users", user)
 
 def get_value(key):
     return redis_object.get(key)
@@ -31,6 +34,9 @@ def get_list(key):
 
 def append_to_list(key, value):
     return redis_object.lpush(key, value)
+
+def remove_from_list(key, value):
+    return redis_object.lrem(key, 0, value)
 
 def delete_key(key):
     redis_object.delete(key)
