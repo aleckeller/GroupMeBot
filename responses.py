@@ -3,6 +3,7 @@ import os
 
 import bot
 import redis_helper
+import initial_data
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -78,7 +79,6 @@ def learn_response():
     return response
 
 def reset_phrases():
-    response = ""
     sender = bot.get_sender_name()
     sender_id = bot.get_sender_id()
     sender_learn_amount_key = sender_id + "_learn_amount"
@@ -89,4 +89,19 @@ def reset_phrases():
     redis_helper.delete_key(sender_learn_phrases_key)
     redis_helper.set_key_value(sender_learn_amount_key, 0)
     response = "Successfully removed all learned phrases for " + sender
+    return response
+
+def list_commands():
+    bot_name = bot.get_bot_name()
+    response = "Here are the current phrases " + bot_name + " will respond to -> \n\n"
+    phrases = redis_helper.get_keys()
+    learn_amount_key_end = "_learn_amount"
+    learn_phrases_key_end = "_learn_phrases"
+    for phrase in phrases:
+        if (not learn_amount_key_end in phrase) and (not learn_phrases_key_end in phrase):
+            description = initial_data.get_description(phrase, bot_name)
+            if description:
+                response = response + "Phrase: " +  phrase + "\n" + description + "\n" + "-------------" + "\n"
+            else:
+                response = response + "Phrase: " + phrase + " (custom phrase) " + "\n" + "-------------" + "\n"
     return response
