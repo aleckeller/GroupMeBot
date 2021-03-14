@@ -4,7 +4,8 @@ commands = {
     "reset-phrases": "reset_phrases",
     "commands": "list_commands",
     "restrict-user": "restrict_learn_user",
-    "undo-restrict": "restrict_learn_user"
+    "undo-restrict": "restrict_learn_user",
+    "meme": "send_meme"
 }
 
 restricted_learn_users = []
@@ -36,6 +37,12 @@ def get_description(phrase, bot_name):
             "Description: Will unrestrict a user so that user can teach " + bot_name + " any new phrases \n"
             "Usage: " + bot_name + " undo-restrict user-nickname \n"
             "ADMINS-ONLY"
+        ),
+        "meme": (
+            "Description: Will get a random meme from the subreddit that is specified. If no subreddit is specified, "
+            "will use the default subreddit. \n"
+            "Usage: " + bot_name + " meme \n"
+            "Optional Usage: " + bot_name + " meme subreddit"
         )
     }
     return descriptions.get(phrase)

@@ -6,6 +6,8 @@ import redis_helper
 import initial_data
 import CONSTANTS
 import groupme_helper
+import reddit_helper
+import utils
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -14,7 +16,7 @@ def say_hi_to_sender():
         message = "hi " + sender
     else:
         message = "hi"
-    return message
+    return message, None
 
 def learn_response():
     response = None
@@ -22,6 +24,7 @@ def learn_response():
     sender = bot.get_sender_name()
     sender_id = bot.get_sender_id()
     message = bot.get_message()
+    group_id = bot.get_group_id()
     sender_learn_amount_key = sender_id + "_learn_amount"
     sender_learn_phrases_key = sender_id + "_learn_phrases"
     restricted_learn_users = redis_helper.get_list("restricted_learn_users")
@@ -45,6 +48,7 @@ def learn_response():
                             if success:
                                 redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
                                 redis_helper.append_to_list(sender_learn_phrases_key, phrase)
+                                groupme_helper.update_group_description(group_id, list_commands(short_version=True))
                                 response = (
                                     bot_name + " successfully learned phrase "
                                     "(" + phrase + ") with response (" + bot_response + ")"
@@ -87,11 +91,13 @@ def learn_response():
             "Contact an admin to become unrestricted."
         )
 
-    return response
+    return response, None
 
-def reset_phrases():
-    sender = bot.get_sender_name()
-    sender_id = bot.get_sender_id()
+def reset_phrases(sender=None, sender_id=None):
+    if not sender:
+        sender = bot.get_sender_name()
+    if not sender_id:
+        sender_id = bot.get_sender_id()
     sender_learn_amount_key = sender_id + "_learn_amount"
     sender_learn_phrases_key = sender_id + "_learn_phrases"
     sender_learned_phrases = redis_helper.get_list(sender_learn_phrases_key)
@@ -100,22 +106,25 @@ def reset_phrases():
     redis_helper.delete_key(sender_learn_phrases_key)
     redis_helper.set_key_value(sender_learn_amount_key, 0)
     response = "Successfully removed all learned phrases for " + sender
-    return response
+    return response, None
 
-def list_commands():
+def list_commands(short_version=False):
     bot_name = bot.get_bot_name()
-    response = "Here are the current phrases " + bot_name + " will respond to -> \n\n"
+    response = "Here are the current phrases " + bot_name + " will respond to if included in a message -> \n\n"
     phrases = redis_helper.get_keys()
     learn_amount_key_end = "_learn_amount"
     learn_phrases_key_end = "_learn_phrases"
     for phrase in phrases:
         if (not learn_amount_key_end in phrase) and (not learn_phrases_key_end in phrase):
-            description = initial_data.get_description(phrase, bot_name)
-            if description:
-                response = response + "Phrase: " +  phrase + "\n" + description + "\n" + "-------------" + "\n"
+            if not short_version:
+                description = initial_data.get_description(phrase, bot_name)
+                if description:
+                    response = response + "Phrase: " +  phrase + "\n" + description + "\n" + "-------------" + "\n"
+                else:
+                    response = response + "Phrase: " + phrase + " (custom phrase) " + "\n" + "-------------" + "\n"
             else:
-                response = response + "Phrase: " + phrase + " (custom phrase) " + "\n" + "-------------" + "\n"
-    return response
+                response = response + "(" + phrase + ") "
+    return response, None
 
 def restrict_learn_user():
     response = None
@@ -136,6 +145,7 @@ def restrict_learn_user():
                 if restricted_user_id:
                     if action == "restrict-user":
                         redis_helper.append_to_list("restricted_learn_users", restricted_user_id)
+                        reset_phrases(restricted_user_nickname, restricted_user_id)
                         response = "Restricted the following user: " + restricted_user_nickname
                     elif action == "undo-restrict":
                         redis_helper.remove_from_list("restricted_learn_users", restricted_user_id)
@@ -151,4 +161,31 @@ def restrict_learn_user():
                 "Restrict/undo users has incorrect structure "
             )
 
-    return response
+    return response, None
+
+def send_meme():
+    message = bot.get_message()
+    message_split = message.split(" ")
+    if len(message_split) == 3:
+        subreddit_name = message_split[2]
+    else:
+        subreddit_name = os.environ.get("MEME_SUBREDDIT")
+    groupme_picture = None
+    groupme_picture_found = False
+    get_meme_retries = int(os.environ.get("GET_MEME_RETRIES"))
+    for i in range(1, get_meme_retries + 1):
+        print("On try " + str(i) + " trying to get a meme..")
+        meme_url = reddit_helper.get_random_meme_url(subreddit_name)
+        file_path = utils.download_image_from_url(meme_url)
+        groupme_picture = groupme_helper.upload_picture(file_path)
+        if groupme_picture:
+            groupme_picture_found = True
+            break
+    if groupme_picture_found:
+        response_message = os.environ.get("MEME_RESPONSE_MESSAGE") + " (subreddit -> " + subreddit_name + ")"
+        picture_url = groupme_picture.get("picture_url")
+    else:
+        response_message = "There was an error trying to get a meme.. Please try again"
+        picture_url = None
+    return response_message, picture_url
+

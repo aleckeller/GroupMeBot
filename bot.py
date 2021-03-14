@@ -34,14 +34,14 @@ def is_bot_mentioned(bot_name, message):
     return bot_name in message
 
 def analyze_message(message):
-    values = []
+    value = None
     redis_keys = redis_helper.get_keys()
     for key in redis_keys:
         key = str(key)
         if key in message:
             print("Found " + key + " in message!")
-            values.append(redis_helper.get_value(key))
-    return values
+            value = redis_helper.get_value(key)
+    return value
 
 def determine_response(json_body):
     response = {}
@@ -60,20 +60,20 @@ def determine_response(json_body):
             message = message.lower()
             if is_bot_mentioned(bot_name, message):
                 print(bot_name + " was mentioned. Determining response..")
-                values = analyze_message(message)
-                if len(values) > 0:
+                value = analyze_message(message)
+                if value:
                     response_message = ""
-                    for value in values:
-                        is_function_name = False
-                        for function_name, function in bot_response_functions:
-                            if function_name == value:
-                                is_function_name = True
-                                print("Calling " + function_name)
-                                result = getattr(responses, function_name)()
-                                response_message = response_message + result + "\n"
-                        if not is_function_name:
-                            response_message = response_message + value + "\n"
+                    is_function_name = False
+                    for function_name, function in bot_response_functions:
+                        if function_name == value:
+                            is_function_name = True
+                            print("Calling " + function_name)
+                            response_message, response_picture_url = getattr(responses, function_name)()
+                    if not is_function_name:
+                        response_message = value
+                        response_picture_url = None
                     response["message"] = response_message
+                    response["picture_url"] = response_picture_url
     else:
         response = {
             "error": "BOT_NAME environment variable not defined"
