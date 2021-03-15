@@ -48,7 +48,8 @@ def learn_response():
                             if success:
                                 redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
                                 redis_helper.append_to_list(sender_learn_phrases_key, phrase)
-                                groupme_helper.update_group_description(group_id, list_commands(short_version=True))
+                                description =  list_commands(short_version=True)[0]
+                                groupme_helper.update_group_description(group_id, description)
                                 response = (
                                     bot_name + " successfully learned phrase "
                                     "(" + phrase + ") with response (" + bot_response + ")"

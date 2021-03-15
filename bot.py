@@ -1,10 +1,12 @@
 import os
 from inspect import getmembers, isfunction
 import requests
+import json
 
 import redis_helper
 import responses
 import CONSTANTS
+import utils
 
 bot_response_functions = getmembers(responses, isfunction)
 sender = None
@@ -85,8 +87,7 @@ def send_message(message, picture_url=None):
     group_base_url = os.environ.get("GROUP_BASE_URL")
     bot_id = os.environ.get("BOT_ID")
     body = {
-      "bot_id" : bot_id,
-      "text" : message
+        "bot_id" : bot_id
     }
     if picture_url:
         body["attachments"] = [
@@ -95,7 +96,23 @@ def send_message(message, picture_url=None):
                 "url": picture_url
             }
         ]
-    r = requests.post(url=group_base_url, json=body)
-    print("Message was sent!")
+    message_chunks = utils.split_message_by_character_limit(message, 999)
+    for count, chunk in enumerate(message_chunks):
+        # Remove picture url after the first iteration
+        if count == 1:
+            body.pop("attachments", None)
+        body["text"] = chunk
+        r = requests.post(url=group_base_url, json=body)
+        if r.text:
+            response_json = json.loads(r.text)
+            meta = response_json.get("meta")
+            if meta:
+                if meta.get("errors"):
+                    print("There was an error sending message..")
+                    print(meta.get("errors"))
+                else:
+                    print("Message was sent!")
+        else:
+            print("Message was sent!")
     
         

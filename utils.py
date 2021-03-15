@@ -12,3 +12,7 @@ def download_image_from_url(url):
 
 def get_file_extension(path):
     return path.rpartition(".")[-1]
+
+def split_message_by_character_limit(message, limit):
+    chunks = [message[i:i+limit] for i in range(0, len(message), limit)]
+    return chunks
