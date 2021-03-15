@@ -5,7 +5,8 @@ commands = {
     "commands": "list_commands",
     "restrict-user": "restrict_learn_user",
     "undo-restrict": "restrict_learn_user",
-    "meme": "send_meme"
+    "meme": "send_meme",
+    "searchpics": "search_google_pics"
 }
 
 restricted_learn_users = []
@@ -42,7 +43,11 @@ def get_description(phrase, bot_name):
             "Description: Will get a random meme from the subreddit that is specified. If no subreddit is specified, "
             "will use the default subreddit. \n"
             "Usage: " + bot_name + " meme \n"
-            "Optional Usage: " + bot_name + " meme subreddit"
+            "Optional Usage: " + bot_name + " meme subreddit_you_want_to_search"
+        ),
+        "searchpics": (
+            "Description: Will search google images with the query provided \n"
+            "Usage: " + bot_name + " searchpics query_you_want_to_search \n"
         )
     }
     return descriptions.get(phrase)

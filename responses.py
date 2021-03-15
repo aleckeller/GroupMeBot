@@ -8,6 +8,7 @@ import CONSTANTS
 import groupme_helper
 import reddit_helper
 import utils
+import google_search_helper
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -130,7 +131,6 @@ def list_commands(short_version=False):
 def restrict_learn_user():
     response = None
     message = bot.get_message()
-    bot_name = bot.get_bot_name()
     sender = bot.get_sender_name()
     group_id = bot.get_group_id()
     if message:
@@ -188,5 +188,24 @@ def send_meme():
     else:
         response_message = "There was an error trying to get a meme.. Please try again"
         picture_url = None
+    return response_message, picture_url
+
+def search_google_pics():
+    bot_name = bot.get_bot_name()
+    message = bot.get_message()
+    message_split = message.split(" ")
+    picture_url = None
+    if len(message_split) >= 3:
+        command = message_split[1]
+        clean_message = utils.clean_message(message, bot_name, command)
+        image_path = google_search_helper.search_image(clean_message)
+        if image_path:
+            groupme_picture = groupme_helper.upload_picture(image_path)
+            response_message = "Results for the query " + clean_message.strip()
+            picture_url = groupme_picture.get("picture_url")
+        else:
+            response_message = "Sorry, could not find any results for " + clean_message.strip()
+    else:
+        response_message = "No query provided to search with.."
     return response_message, picture_url
 
