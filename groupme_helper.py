@@ -1,8 +1,6 @@
 from groupy import Client
 import os
 
-from requests.models import HTTPError
-
 client = Client.from_token(os.environ.get("GROUPME_API_TOKEN"))
 
 def get_group(group_id):
