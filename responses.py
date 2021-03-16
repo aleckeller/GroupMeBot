@@ -209,3 +209,15 @@ def search_google_pics():
         response_message = "No query provided to search with.."
     return response_message, picture_url
 
+def say_message():
+    bot_name = bot.get_bot_name()
+    message = bot.get_message()
+    message_split = message.split(" ")
+    picture_url = None
+    if len(message_split) >= 3:
+        command = message_split[1]
+        response_message = utils.clean_message(message, bot_name, command).strip()
+    else:
+        response_message = "Nothing to say.."
+    return response_message, picture_url
+

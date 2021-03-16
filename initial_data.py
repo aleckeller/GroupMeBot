@@ -6,7 +6,8 @@ commands = {
     "restrict-user": "restrict_learn_user",
     "undo-restrict": "restrict_learn_user",
     "meme": "send_meme",
-    "searchpics": "search_google_pics"
+    "searchpics": "search_google_pics",
+    "say": "say_message"
 }
 
 restricted_learn_users = []
@@ -48,6 +49,10 @@ def get_description(phrase, bot_name):
         "searchpics": (
             "Description: Will search google images with the query provided \n"
             "Usage: " + bot_name + " searchpics query_you_want_to_search \n"
+        ),
+        "say": (
+            "Description: " + bot_name + " will respond with what was in the message"
+            "Usage: " + bot_name + " say message_you_want_bot_to_say \n"
         )
     }
     return descriptions.get(phrase)
