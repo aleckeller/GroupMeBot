@@ -1,7 +1,7 @@
 from google_images_search import GoogleImagesSearch
 import os
 import random
-import utils
+from helpers import utils
 
 gis = GoogleImagesSearch(os.environ.get("GOOGLE_API_KEY"), os.environ.get("GOOGLE_PROJECT"))
 

@@ -1,7 +1,7 @@
 from flask import Flask, request
 
 import bot
-import redis_helper
+from helpers import redis_helper
 
 app = Flask(__name__)
 redis_helper.initialize_data()

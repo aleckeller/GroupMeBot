@@ -3,10 +3,10 @@ from inspect import getmembers, isfunction
 import requests
 import json
 
-import redis_helper
+from helpers import redis_helper
 import responses
 import CONSTANTS
-import utils
+from helpers import utils
 
 bot_response_functions = getmembers(responses, isfunction)
 sender = None

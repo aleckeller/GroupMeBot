@@ -1,7 +1,7 @@
 import praw
 import os
 
-import utils
+from helpers import utils
 import CONSTANTS
 
 reddit_client = praw.Reddit(client_id=os.environ.get("REDDIT_CLIENT_ID"),

@@ -2,13 +2,13 @@ import re
 import os
 
 import bot
-import redis_helper
+from helpers import redis_helper
 import initial_data
 import CONSTANTS
-import groupme_helper
-import reddit_helper
-import utils
-import google_search_helper
+from helpers import groupme_helper
+from helpers import reddit_helper
+from helpers import utils
+from helpers import google_search_helper
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -201,7 +201,7 @@ def search_google_pics():
         image_path = google_search_helper.search_image(clean_message)
         if image_path:
             groupme_picture = groupme_helper.upload_picture(image_path)
-            response_message = "Results for the query " + clean_message.strip()
+            response_message = "Results for the query -> " + clean_message.strip()
             picture_url = groupme_picture.get("picture_url")
         else:
             response_message = "Sorry, could not find any results for " + clean_message.strip()
