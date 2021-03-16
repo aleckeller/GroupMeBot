@@ -1,5 +1,6 @@
 import re
 import os
+from datetime import datetime
 
 import bot
 from helpers import redis_helper
@@ -9,6 +10,7 @@ from helpers import groupme_helper
 from helpers import reddit_helper
 from helpers import utils
 from helpers import google_search_helper
+from helpers import bet_analyzer_helper
 
 def say_hi_to_sender():
     sender = bot.get_sender_name()
@@ -219,5 +221,43 @@ def say_message():
         response_message = utils.clean_message(message, bot_name, command).strip()
     else:
         response_message = "Nothing to say.."
+    return response_message, picture_url
+
+def revenge_games_response():
+    bot_name = bot.get_bot_name()
+    message = bot.get_message()
+    message_split = message.split(" ")
+    picture_url = None
+    if len(message_split) == 3:
+        league = message_split[2]
+        if league in CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS:
+            now = datetime.now().strftime("%m-%d-%Y")
+            response = bet_analyzer_helper.get_revenge_games(league, now)
+            if not response.get("error"):
+                data = response["data"]
+                revenge_games = data.get(league)
+                if revenge_games and len(revenge_games) > 0:
+                    response_message = (
+                        f"Revenge Games for {now}: \n" +
+                        utils.format_revenge_games(revenge_games)
+                    )
+                else:
+                    response_message = "There are no revenge games today in the " + league 
+            else:
+                response_message = (
+                    "Error getting revenge games -> \n" + 
+                    response["error"]
+                )
+
+        else:
+            response_message = "League needs to be one of the following -> " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS)
+
+    else:
+        response_message = (
+            "Revenge games has incorrect structure. "
+            "Please use the following format -> " 
+            "(note that the following league options are available " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + " \n)" +
+            bot_name + " revenge-games league_you_want_games_for"
+        )
     return response_message, picture_url
 

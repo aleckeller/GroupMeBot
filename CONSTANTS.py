@@ -5,3 +5,8 @@ ACCEPTED_MEME_FILE_EXTENSIONS = [
     "gif",
     "jpeg"
 ]
+BET_ANALYZER_LEAGUE_OPTIONS = [
+    "nba",
+    "nhl",
+    "ncaab"
+]

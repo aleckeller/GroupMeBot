@@ -1,3 +1,7 @@
+import os
+import CONSTANTS
+
+
 commands = {
     "hey": "say_hi_to_sender",
     "learn": "learn_response",
@@ -7,7 +11,8 @@ commands = {
     "undo-restrict": "restrict_learn_user",
     "meme": "send_meme",
     "searchpics": "search_google_pics",
-    "say": "say_message"
+    "say": "say_message",
+    "revenge-games": "revenge_games_response"
 }
 
 restricted_learn_users = []
@@ -53,6 +58,12 @@ def get_description(phrase, bot_name):
         "say": (
             "Description: " + bot_name + " will respond with what was in the message"
             "Usage: " + bot_name + " say message_you_want_bot_to_say \n"
+        ),
+        "revenge-games": (
+            "Description: Will get revenge games for today (revenge game is a game where a player is playing their old team "
+            "within " + os.environ.get("REVENGE_GAME_YEARS_BACK") + " years) and the odds for each game \n"
+            "Available League Options: " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + "\n" 
+            "Usage: " + bot_name + " revenge-games league \n"
         )
     }
     return descriptions.get(phrase)
