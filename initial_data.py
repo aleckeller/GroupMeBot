@@ -12,7 +12,8 @@ commands = {
     "meme": "send_meme",
     "searchpics": "search_google_pics",
     "say": "say_message",
-    "revenge-games": "revenge_games_response"
+    "get-games": "get_games_response",
+    "revenge-games": "get_games_response"
 }
 
 restricted_learn_users = []
@@ -53,17 +54,22 @@ def get_description(phrase, bot_name):
         ),
         "searchpics": (
             "Description: Will search google images with the query provided \n"
-            "Usage: " + bot_name + " searchpics query_you_want_to_search \n"
+            "Usage: " + bot_name + " searchpics query_you_want_to_search"
         ),
         "say": (
-            "Description: " + bot_name + " will respond with what was in the message"
-            "Usage: " + bot_name + " say message_you_want_bot_to_say \n"
+            "Description: " + bot_name + " will respond with what was in the message\n"
+            "Usage: " + bot_name + " say message_you_want_bot_to_say"
+        ),
+        "get-games": (
+            "Description: " + bot_name + " will respond with games for today and odds \n"
+            "Available League Options: " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + "\n" 
+            "Usage: " + bot_name + " get-games league"
         ),
         "revenge-games": (
-            "Description: Will get revenge games for today (revenge game is a game where a player is playing their old team "
+            "Description: Will get revenge games for today (revenge game is a game where a player is playing their old team \n"
             "within " + os.environ.get("REVENGE_GAME_YEARS_BACK") + " years) and the odds for each game \n"
             "Available League Options: " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + "\n" 
-            "Usage: " + bot_name + " revenge-games league \n"
+            "Usage: " + bot_name + " revenge-games league"
         )
     }
     return descriptions.get(phrase)

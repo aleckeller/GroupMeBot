@@ -223,29 +223,37 @@ def say_message():
         response_message = "Nothing to say.."
     return response_message, picture_url
 
-def revenge_games_response():
+def get_games_response():
     bot_name = bot.get_bot_name()
     message = bot.get_message()
     message_split = message.split(" ")
     picture_url = None
     if len(message_split) == 3:
+        command = message_split[1]
         league = message_split[2]
         if league in CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS:
             now = datetime.now().strftime("%m-%d-%Y")
-            response = bet_analyzer_helper.get_revenge_games(league, now)
+            is_revenge_games = command == "revenge-games"
+            response = bet_analyzer_helper.get_games(league, now, is_revenge_games)
             if not response.get("error"):
                 data = response["data"]
-                revenge_games = data.get(league)
-                if revenge_games and len(revenge_games) > 0:
-                    response_message = (
-                        f"Revenge Games for {now}: \n" +
-                        utils.format_revenge_games(revenge_games)
-                    )
+                games = data.get(league)
+                if games and len(games) > 0:
+                    if is_revenge_games:
+                        response_message = (
+                            f"Revenge Games for {now}: \n" +
+                            utils.format_games(games, True)
+                        )
+                    else:
+                        response_message = (
+                            f"Games for {now}: \n" +
+                            utils.format_games(games, False)
+                        )
                 else:
-                    response_message = "There are no revenge games today in the " + league 
+                    response_message = "There are no games today in the " + league 
             else:
                 response_message = (
-                    "Error getting revenge games -> \n" + 
+                    "Error getting games -> \n" + 
                     response["error"]
                 )
 
@@ -254,10 +262,10 @@ def revenge_games_response():
 
     else:
         response_message = (
-            "Revenge games has incorrect structure. "
+            "Revenge-games or get-games has incorrect structure. "
             "Please use the following format -> " 
             "(note that the following league options are available " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + " \n)" +
-            bot_name + " revenge-games league_you_want_games_for"
+            bot_name + " (revenge-games or get-games) league_you_want_games_for"
         )
     return response_message, picture_url
 

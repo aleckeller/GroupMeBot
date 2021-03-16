@@ -7,18 +7,22 @@ import bot
 sports_bet_analyzer_base_url = os.environ.get("SPORTS_BET_ANALYZER_URL")
 revenge_game_years_back = int(os.environ.get("REVENGE_GAME_YEARS_BACK"))
 
-def get_revenge_games(league, date):
+def get_games(league, date, is_revenge_games):
     body = {
         "date": date,
         "leagues": {
             league: {
                "json_logic": [] 
             }
-        },
-        "number_of_years_back": revenge_game_years_back
+        }
     }
-    revenge_games_url = sports_bet_analyzer_base_url + "/revenge-games/"
-    request_id = get_request_id(revenge_games_url, body)
+    url = sports_bet_analyzer_base_url
+    if is_revenge_games:
+        url = url + "/revenge-games/"
+        body["number_of_years_back"] = revenge_game_years_back
+    else:
+        url = url + "/games/"
+    request_id = get_request_id(url, body)
     return get_response_from_request_id(request_id)
 
 
@@ -47,7 +51,7 @@ def get_response_from_request_id(request_id):
             request_finished = True
         else:
             if request_attempts > 0:
-                bot.send_message("Still processing revenge games..")
+                bot.send_message("Still processing games..")
             time.sleep(30)
         request_attempts = request_attempts + 1
     return response
