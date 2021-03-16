@@ -2,6 +2,7 @@ import os
 from inspect import getmembers, isfunction
 import requests
 import json
+import random
 
 from helpers import redis_helper
 import responses
@@ -76,6 +77,16 @@ def determine_response(json_body):
                         response_picture_url = None
                     response["message"] = response_message
                     response["picture_url"] = response_picture_url
+                else:
+                    response["message"] = utils.get_random_response(os.environ.get("RANDOM_RESPONSES"))
+            else:
+                lucky_number = 3
+                random_number = random.randint(1, 15)
+                if lucky_number == random_number:
+                    print("Sending random response..")
+                    response["message"] = utils.get_random_response(os.environ.get("RANDOM_RESPONSES"))
+
+                    
     else:
         response = {
             "error": "BOT_NAME environment variable not defined"

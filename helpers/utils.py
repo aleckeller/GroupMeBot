@@ -1,5 +1,6 @@
 import requests
 import os
+import random
 
 def download_image_from_url(url):
     request = requests.get(url)
@@ -31,3 +32,7 @@ def clean_message(message, bot_name, command):
     for cur_word in replace_list:
             message = message.replace(cur_word, '')
     return message
+
+def get_random_response(responses):
+    responses = responses.split(",")
+    return random.choice(responses).strip()
