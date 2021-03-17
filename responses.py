@@ -1,6 +1,7 @@
 import re
 import os
 from datetime import datetime
+import pytz
 
 import bot
 from helpers import redis_helper
@@ -102,6 +103,7 @@ def reset_phrases(sender=None, sender_id=None):
         sender = bot.get_sender_name()
     if not sender_id:
         sender_id = bot.get_sender_id()
+    group_id = bot.get_group_id()
     sender_learn_amount_key = sender_id + "_learn_amount"
     sender_learn_phrases_key = sender_id + "_learn_phrases"
     sender_learned_phrases = redis_helper.get_list(sender_learn_phrases_key)
@@ -109,6 +111,8 @@ def reset_phrases(sender=None, sender_id=None):
         redis_helper.delete_key(phrase)
     redis_helper.delete_key(sender_learn_phrases_key)
     redis_helper.set_key_value(sender_learn_amount_key, 0)
+    description =  list_commands(short_version=True)[0]
+    groupme_helper.update_group_description(group_id, description)
     response = "Successfully removed all learned phrases for " + sender
     return response, None
 
@@ -228,11 +232,12 @@ def get_games_response():
     message = bot.get_message()
     message_split = message.split(" ")
     picture_url = None
-    if len(message_split) == 3:
+    if len(message_split) >= 3:
         command = message_split[1]
         league = message_split[2]
         if league in CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS:
-            now = datetime.now().strftime("%m-%d-%Y")
+            utc_now = pytz.utc.localize(datetime.utcnow())
+            now = utc_now.astimezone(pytz.timezone(os.environ.get("TIMEZONE"))).strftime("%m-%d-%Y")
             is_revenge_games = command == "revenge-games"
             response = bet_analyzer_helper.get_games(league, now, is_revenge_games)
             if not response.get("error"):

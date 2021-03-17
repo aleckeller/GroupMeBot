@@ -42,7 +42,11 @@ def format_games(games, is_revenge_games):
     for game in games:
         away_team = game["away_team"]["name"]
         home_team = game["home_team"]["name"]
-        odds = get_odds(game["odds"])
+        odds = None
+        if game.get("odds"):
+            odds = get_odds(game["odds"])
+        else:
+            odds = "Odds currently not available (in-progress game)"
         response = response + (
             f"{away_team} vs. {home_team} \n\n"
             f"{odds} \n"
@@ -71,8 +75,9 @@ def get_revenge_players_string(revenge_game_players):
     return the_string
 
 def get_odds(odds):
-    odds_data = odds["odds"]
-    teams = odds["teams"]
+    odds_data = odds.get("odds")
+    teams = odds.get("teams")
+    odds_string = ""
     teams_with_odds = []
     index = 0
     for index in range(2):
@@ -103,7 +108,6 @@ def get_odds(odds):
                 }
             }
         teams_with_odds.append(team)
-    odds_string = ""
     for index, team_odds in enumerate(teams_with_odds):
         team_name = teams[index]
         odds_string = odds_string + f"{team_name} odds: \n"
