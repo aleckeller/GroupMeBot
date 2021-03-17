@@ -247,12 +247,12 @@ def get_games_response():
                     if is_revenge_games:
                         response_message = (
                             f"Revenge Games for {now}: \n" +
-                            utils.format_games(games, True)
+                            bet_analyzer_helper.format_games(games, True)
                         )
                     else:
                         response_message = (
                             f"Games for {now}: \n" +
-                            utils.format_games(games, False)
+                            bet_analyzer_helper.format_games(games, False)
                         )
                 else:
                     response_message = "There are no games today in the " + league 
