@@ -1,5 +1,4 @@
 import os
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 import bot
 
@@ -11,9 +10,6 @@ json_body = {
     "user_id": os.environ.get("SCHEDULER_USER_ID")
 }
 
-sched = BlockingScheduler()
-
-@sched.scheduled_job("cron", day_of_week="mon-sun", hour=8, minute=30)
 def send_morning_meme():
     print("Sending morning meme..")
     bot_name = bot.get_bot_name()
@@ -23,5 +19,3 @@ def send_morning_meme():
     picture_url = response.get("picture_url")
     if message:
         bot.send_message(message, picture_url)
-
-sched.start()
