@@ -25,7 +25,7 @@ def get_sender_id():
     return sender_id
 
 def get_message():
-    return message
+    return message.strip()
 
 def get_bot_name():
     bot_name = os.environ.get("BOT_NAME")
