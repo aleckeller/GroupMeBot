@@ -184,11 +184,12 @@ def send_meme():
     for i in range(1, get_meme_retries + 1):
         print("On try " + str(i) + " trying to get a meme..")
         meme_url = reddit_helper.get_random_meme_url(subreddit_name)
-        file_path = utils.download_image_from_url(meme_url)
-        groupme_picture = groupme_helper.upload_picture(file_path)
-        if groupme_picture:
-            groupme_picture_found = True
-            break
+        if meme_url:
+            file_path = utils.download_image_from_url(meme_url)
+            groupme_picture = groupme_helper.upload_picture(file_path)
+            if groupme_picture:
+                groupme_picture_found = True
+                break
     if groupme_picture_found:
         response_message = os.environ.get("MEME_RESPONSE_MESSAGE") + " (subreddit -> " + subreddit_name + ")"
         picture_url = groupme_picture.get("picture_url")

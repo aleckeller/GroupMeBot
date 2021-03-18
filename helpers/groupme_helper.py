@@ -17,7 +17,7 @@ def get_user_id_from_group(group_id, nickname):
 
 def update_group_description(group_id, description):
     group = get_group(group_id)
-    group.update(None, description, None, None, False)
+    group.update(None, description, os.environ.get("GROUP_PICTURE_URL"), None, False)
 
 def upload_picture(file_path):
     url = None
