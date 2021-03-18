@@ -121,7 +121,10 @@ def reset_phrases(sender=None, sender_id=None):
 
 def list_commands(short_version=False):
     bot_name = bot.get_bot_name()
-    response = "Here are the current phrases " + bot_name + " will respond to if included in a message -> \n\n"
+    if not short_version:
+        response = "Here are the current phrases " + bot_name + " will respond to if included in a message -> \n\n"
+    else:
+        response = ""
     phrases = redis_helper.get_keys()
     learn_amount_key_end = "_learn_amount"
     learn_phrases_key_end = "_learn_phrases"
