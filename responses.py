@@ -136,14 +136,15 @@ def list_commands(short_version=False):
 
 def restrict_learn_user():
     response = None
+    bot_name = bot.get_bot_name()
     message = bot.get_message()
     sender = bot.get_sender_name()
     group_id = bot.get_group_id()
     if message:
         message_split = message.split(" ")
-        if len(message_split) == 3:
+        if len(message_split) >= 3:
             action = message_split[1]
-            restricted_user_nickname = message_split[2]
+            restricted_user_nickname = utils.clean_message(message, bot_name, action).strip()
             sender_id = bot.get_sender_id()
             admin_user_ids = os.environ.get("ADMIN_USER_IDS")
             admin_user_ids = admin_user_ids.split(",")
