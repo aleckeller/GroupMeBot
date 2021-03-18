@@ -48,21 +48,24 @@ def learn_response():
                         sender_learn_amount = 0
                     if sender_learn_amount < learn_limit:
                         if not redis_helper.get_value(phrase):
-                            success = redis_helper.set_key_value(phrase, bot_response)
-                            if success:
-                                redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
-                                redis_helper.append_to_list(sender_learn_phrases_key, phrase)
-                                description =  list_commands(short_version=True)[0]
-                                groupme_helper.update_group_description(group_id, description)
-                                response = (
-                                    bot_name + " successfully learned phrase "
-                                    "(" + phrase + ") with response (" + bot_response + ")"
-                                )
+                            if len(phrase) > 2:
+                                success = redis_helper.set_key_value(phrase, bot_response)
+                                if success:
+                                    redis_helper.set_key_value(sender_learn_amount_key, sender_learn_amount + 1)
+                                    redis_helper.append_to_list(sender_learn_phrases_key, phrase)
+                                    description =  list_commands(short_version=True)[0]
+                                    groupme_helper.update_group_description(group_id, description)
+                                    response = (
+                                        bot_name + " successfully learned phrase "
+                                        "(" + phrase + ") with response (" + bot_response + ")"
+                                    )
+                                else:
+                                    response = (
+                                        "There was an error learning phrase "
+                                        "(" + phrase + ") with response (" + bot_response + ") :/"
+                                    )
                             else:
-                                response = (
-                                    "There was an error learning phrase "
-                                    "(" + phrase + ") with response (" + bot_response + ") :/"
-                                )
+                                response = "Learn command failed. The phrase (" + phrase + ") needs to be greater than 2 characters"
                         else:
                             sender_learned_phrases_string = ""
                             if sender_learned_phrases:
