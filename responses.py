@@ -197,7 +197,7 @@ def send_meme():
         response_message = os.environ.get("MEME_RESPONSE_MESSAGE") + " (subreddit -> " + subreddit_name + ")"
         picture_url = groupme_picture.get("picture_url")
     else:
-        response_message = "There was an error trying to get a meme.. Please try again"
+        response_message = "There was an error trying to get a meme.. Please try again or use different subreddit"
         picture_url = None
     return response_message, picture_url
 
