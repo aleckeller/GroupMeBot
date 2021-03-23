@@ -11,6 +11,7 @@ revenge_game_years_back = int(os.environ.get("REVENGE_GAME_YEARS_BACK"))
 
 def get_games(league, date, is_revenge_games):
     body = {
+        "include_odds": True,
         "date": date,
         "leagues": {
             league: {
@@ -44,18 +45,14 @@ def get_response_from_request_id(request_id):
     response = None
     request_url = sports_bet_analyzer_base_url + "/results/" + request_id
     request_finished = False
-    bot.send_message("Processing request for the sports bet analyzer.. this can take a couple of minutes.")
-    request_attempts = 0
+    bot.send_message("Processing request for the sports bet analyzer..")
     while not request_finished:
         r = requests.get(url=request_url)
         if r.status_code != 202:
             response = json.loads(r.text)
             request_finished = True
         else:
-            if request_attempts > 0:
-                bot.send_message("Still processing games..")
-            time.sleep(30)
-        request_attempts = request_attempts + 1
+            time.sleep(3)
     return response
 
 def format_games(games, is_revenge_games):
@@ -93,8 +90,8 @@ def get_revenge_players_string(revenge_game_players):
         for year in player["previous_team_years"]:
             years_string = years_string + str(year) + " " 
         the_string = (
-            the_string + player["name"] + "(" + player["current_team"] + "): "
-            "previously played on " + player["previous_team"] + " for the following years -> " +
+            the_string + player["name"] + "(" + player["current_team_name"] + "): "
+            "previously played on " + player["previous_team_name"] + " for the following years -> " +
             years_string + "\n" + "-------" + "\n"
         )
     the_string = the_string[:-8]
