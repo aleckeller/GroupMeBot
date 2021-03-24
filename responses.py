@@ -2,6 +2,7 @@ import re
 import os
 from datetime import datetime
 import pytz
+import random
 
 import bot
 from helpers import redis_helper
@@ -183,7 +184,8 @@ def send_meme():
     if len(message_split) == 3:
         subreddit_name = message_split[2]
     else:
-        subreddit_name = os.environ.get("MEME_SUBREDDIT")
+        subreddit_names = os.environ.get("MEME_SUBREDDIT").split(",")
+        subreddit_name = random.choice(subreddit_names).strip()
     groupme_picture = None
     groupme_picture_found = False
     get_meme_retries = int(os.environ.get("GET_MEME_RETRIES"))

@@ -21,10 +21,15 @@ def get_random_meme_url(subreddit_name):
         retries = 1
         while not meme_url_found and retries < max_retries:
             try:
-                meme = subreddit.random()
+                rising_submissions = subreddit.random_rising(limit=5)
             except:
                 print("Error connecting to reddit..")
-                meme = None
+                rising_submissions = []
+            meme = None
+            for submission in rising_submissions:
+                if submission:
+                    meme = submission
+                    break
             if meme and meme.__getattr__("url"):
                 file_extension = utils.get_file_extension(meme.url)
                 if file_extension in CONSTANTS.ACCEPTED_MEME_FILE_EXTENSIONS:
