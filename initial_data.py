@@ -61,15 +61,17 @@ def get_description(phrase, bot_name):
             "Usage: " + bot_name + " say message_you_want_bot_to_say"
         ),
         "get-games": (
-            "Description: " + bot_name + " will respond with games for today and odds \n"
+            "Description: " + bot_name + " will respond with games for today. \n"
             "Available League Options: " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + "\n" 
             "Usage: " + bot_name + " get-games league"
+            "Usage with odds: " + bot_name + " get-games league odds"
         ),
         "revenge-games": (
             "Description: Will get revenge games for today (revenge game is a game where a player is playing their old team \n"
             "within " + os.environ.get("REVENGE_GAME_YEARS_BACK") + " years) and the odds for each game \n"
             "Available League Options: " + str(CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS) + "\n" 
             "Usage: " + bot_name + " revenge-games league"
+            "Usage with odds: " + bot_name + " revenge-games league odds"
         )
     }
     return descriptions.get(phrase)

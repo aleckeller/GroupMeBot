@@ -9,9 +9,9 @@ from helpers import utils
 sports_bet_analyzer_base_url = os.environ.get("SPORTS_BET_ANALYZER_URL")
 revenge_game_years_back = int(os.environ.get("REVENGE_GAME_YEARS_BACK"))
 
-def get_games(league, date, is_revenge_games):
+def get_games(league, date, is_revenge_games, get_odds):
     body = {
-        "include_odds": True,
+        "include_odds": get_odds,
         "date": date,
         "leagues": {
             league: {
@@ -55,7 +55,7 @@ def get_response_from_request_id(request_id):
             time.sleep(3)
     return response
 
-def format_games(games, is_revenge_games):
+def format_games(games, is_revenge_games, is_get_odds, command, league):
     response = ""
     for game in games:
         away_team = game["away_team"]["name"]
@@ -75,9 +75,21 @@ def format_games(games, is_revenge_games):
                 f"{revenge_game_players}"
                 "\n"
             )
+        if is_get_odds:
+            response = response + (
+                f"{odds} \n"
+                "------------------------------------"
+                "\n"
+            )
+        else:
+            response = response + (
+                "------------------------------------"
+                "\n"
+            )
+    if not is_get_odds:
         response = response + (
-            f"{odds} \n"
-            "------------------------------------"
+            f"(Remember to run the following command if you want odds: {bot.get_bot_name()} "
+            f"{command} {league} odds"
             "\n"
         )
     response = response[:-1]

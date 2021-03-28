@@ -245,11 +245,14 @@ def get_games_response():
     if len(message_split) >= 3:
         command = message_split[1]
         league = message_split[2]
+        get_odds = False
+        if len(message_split) >= 4:
+            get_odds = message_split[3].strip() == "odds"
         if league in CONSTANTS.BET_ANALYZER_LEAGUE_OPTIONS:
             utc_now = pytz.utc.localize(datetime.utcnow())
             now = utc_now.astimezone(pytz.timezone(os.environ.get("TIMEZONE"))).strftime("%m-%d-%Y")
             is_revenge_games = command == "revenge-games"
-            response = bet_analyzer_helper.get_games(league, now, is_revenge_games)
+            response = bet_analyzer_helper.get_games(league, now, is_revenge_games, get_odds)
             if not response.get("error"):
                 data = response["data"]
                 games = data.get(league)
@@ -257,12 +260,12 @@ def get_games_response():
                     if is_revenge_games:
                         response_message = (
                             f"Revenge Games for {now}: \n" +
-                            bet_analyzer_helper.format_games(games, True)
+                            bet_analyzer_helper.format_games(games, True, get_odds, command, league)
                         )
                     else:
                         response_message = (
                             f"Games for {now}: \n" +
-                            bet_analyzer_helper.format_games(games, False)
+                            bet_analyzer_helper.format_games(games, False, get_odds, command, league)
                         )
                 else:
                     response_message = "There are no games today in the " + league 
