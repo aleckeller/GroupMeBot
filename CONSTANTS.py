@@ -8,5 +8,6 @@ ACCEPTED_MEME_FILE_EXTENSIONS = [
 BET_ANALYZER_LEAGUE_OPTIONS = [
     "nba",
     "nhl",
-    "ncaab"
+    "ncaab",
+    "mlb"
 ]
