@@ -75,6 +75,11 @@ def format_games(games, is_revenge_games, is_get_odds, command, league):
                 f"{revenge_game_players}"
                 "\n"
             )
+        previous_head_to_heads = get_previous_head_to_heads(game)
+        response = response + (
+            "Previous Head to Heads: \n"
+            f"{previous_head_to_heads} \n"
+        )
         if is_get_odds:
             response = response + (
                 f"{odds} \n"
@@ -163,4 +168,20 @@ def get_odds(odds):
             )
         odds_string = odds_string + "\n"
     return odds_string
+
+def get_previous_head_to_heads(game_data):
+    previous_head_to_heads_string = ""
+    for game in game_data["previous_head_to_heads"]:
+        if game["winner"] == game_data["home_team"]["abbreviation"]:
+            winner = game_data["home_team"]["name"]
+        else:
+            winner = game_data["away_team"]["name"]
+        previous_head_to_heads_string = previous_head_to_heads_string + (
+            f"Winner: {winner} \n"
+            f"Score: {game['score']} \n"
+            f"Date: {game['date']}\n"
+            "------- \n"
+        )
+    previous_head_to_heads_string = previous_head_to_heads_string[:-9]
+    return previous_head_to_heads_string
     
