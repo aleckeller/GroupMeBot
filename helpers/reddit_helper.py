@@ -27,15 +27,18 @@ def get_random_meme_url(subreddit_name):
                 print("Error connecting to reddit..")
                 rising_submissions = []
             meme = None
-            # Convert ListingGenerator to list
-            rising_submissions_list = []
-            for submission in rising_submissions:
-                rising_submissions_list.append(submission)
-            meme = random.choice(rising_submissions_list)
-            if meme and meme.__getattr__("url"):
-                file_extension = utils.get_file_extension(meme.url)
-                if file_extension in CONSTANTS.ACCEPTED_MEME_FILE_EXTENSIONS:
-                    meme_url_found = True
-                    meme_url = meme.url
+            try:
+                # Convert ListingGenerator to list
+                rising_submissions_list = []
+                for submission in rising_submissions:
+                    rising_submissions_list.append(submission)
+                meme = random.choice(rising_submissions_list)
+                if meme and meme.__getattr__("url"):
+                    file_extension = utils.get_file_extension(meme.url)
+                    if file_extension in CONSTANTS.ACCEPTED_MEME_FILE_EXTENSIONS:
+                        meme_url_found = True
+                        meme_url = meme.url
+            except:
+                print("Error connecting to reddit..")
             retries = retries + 1
     return meme_url
