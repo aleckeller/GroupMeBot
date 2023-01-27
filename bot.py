@@ -4,7 +4,7 @@ import requests
 import json
 import random
 
-from helpers import redis_helper
+from helpers import redis_helper, chat_gpt_helper
 import responses
 import CONSTANTS
 from helpers import utils
@@ -78,13 +78,13 @@ def determine_response(json_body):
                     response["message"] = response_message
                     response["picture_url"] = response_picture_url
                 else:
-                    response["message"] = utils.get_random_response(os.environ.get("RANDOM_RESPONSES"))
+                    response["message"] = chat_gpt_helper.get_response(message)
             else:
                 lucky_number = 3
                 random_number = random.randint(1, 15)
                 if lucky_number == random_number:
                     print("Sending random response..")
-                    response["message"] = utils.get_random_response(os.environ.get("RANDOM_RESPONSES"))
+                    response["message"] = chat_gpt_helper.get_response(message)
 
                     
     else:
