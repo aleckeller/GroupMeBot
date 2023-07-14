@@ -1,18 +1,15 @@
 import openai
 import os
 
-def get_response(prompt: str) -> str:
+def get_response(content: str) -> str:
     # Set the API key
     openai.api_key = os.environ.get("OPEN_AI_KEY")
 
-    # Send a request to the API
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5,
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": content}
+        ]
     )
 
-    return response["choices"][0]["text"]
+    return completion.choices[0].message.content
